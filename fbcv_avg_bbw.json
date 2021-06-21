@@ -1,0 +1,24 @@
+{
+    "query":{
+        "bool":{
+            "must": [
+                {"term": {"management":"Fidelity Investments, Inc."}},
+                {"term": { "start_end_date" : "2021-02-01_2021-04-30" }} 
+            ]
+        }    
+    },
+    "aggs" : {
+        "avg_BBW_dist" : {
+            "percentiles" : {
+                "field" : "avg_bbw"
+            }
+        },
+        "Rank" : {
+            "percentile_ranks" : {
+                "field":"avg_bbw", "values":[0.05934]
+            }
+        }
+    },
+    "size":0
+}
+

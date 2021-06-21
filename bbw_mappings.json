@@ -1,0 +1,16 @@
+{
+  "mappings" : {
+    "dynamic": false, 
+    "properties": {
+      "symbol":{"type":"keyword"},
+      "management":{"type":"keyword"},
+      "avg_bbw": {"type": "float"},
+      "fund_type": {"type": "keyword"},
+      "start_end_date": {"type": "keyword"}
+    }
+  },
+  "settings":{
+    "index.number_of_shards": 2,
+    "index.number_of_replicas": 1
+  }
+}

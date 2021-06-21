@@ -1,0 +1,85 @@
+{
+    "query":{
+		"bool":{
+			"must": [
+				{"range":{"date":{"gte":"2021-01-01", "lte":"2021-04-30"}}},
+				{"term": {"symbol":"FBCV"}}
+			]
+		}
+	},
+	"aggs" : {
+        "BBI" : {
+            "date_histogram" : {
+                "field" : "date",
+                "interval" : "1d",
+                "format" : "yyyy-MM-dd"
+            },
+			"aggs": {
+		    	"TP" : {
+		    		"scripted_metric":{
+		    			"init_script": "state.totals=[]",
+		    			"map_script": "state.totals.add((doc.high.value+doc.low.value+doc.close.value)/3)",
+		    			"combine_script": "double total=0; for (t in state.totals) {total += t} return total",
+		    			"reduce_script": "return states[0]"
+		    		}
+		    	},
+                "DateStr": {
+                    "min": { "field": "date"}
+                },
+                "STP": {
+   		            "bucket_selector": {
+                        "buckets_path": {"count":"_count"},
+                        "script": "params.count > 0"
+                    }
+                },
+                "SMA": {
+		    		"moving_fn" : {"script":"MovingFunctions.unweightedAvg(values)", "window":20, "buckets_path":"TP.value"}
+		    	},
+		    	"SD": {
+		    		"moving_fn": {"script":"MovingFunctions.stdDev(values, MovingFunctions.unweightedAvg(values))", "window":20, "buckets_path":"TP.value"}
+		    	},
+		    	"BBU": {
+		    		"bucket_script": {
+		    			"buckets_path": {
+		    				"SMA": "SMA",
+		    				"SD": "SD"
+		    			},
+		    			"script": "params.SMA + 2 * params.SD"
+		    		}
+		    	},
+		    	"BBL": {
+		    		"bucket_script": {
+		    			"buckets_path": {
+		    				"SMA": "SMA",
+		    				"SD": "SD"
+		    			},
+		    			"script": "params.SMA - 2 * params.SD"
+		    		}
+		    	},
+                "BBW": {
+                    "bucket_script": {
+		    			"buckets_path": {
+                            "BBU": "BBU",
+                            "BBL": "BBL",
+		    				"SMA": "SMA"
+		    			},
+		    			"script": "(params.BBU - params.BBL) / params.SMA"
+		    		}
+                },
+                "SBBW": {
+   		            "bucket_selector": {
+                        "buckets_path": {"DateStr":"DateStr"},
+                        "script": "params.DateStr >= 1612137600000L"
+                    }
+                }
+            }
+        },
+        "avg_BBW": {
+            "avg_bucket": {
+                "buckets_path": "BBI>BBW"
+            }
+        }
+    },
+    "size": 0
+}
+
