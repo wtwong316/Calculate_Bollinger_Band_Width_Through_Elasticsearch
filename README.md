@@ -1,5 +1,6 @@
 # Calculate_Bollinger_Band_Width_Through_Elasticsearch
-Materials for the article "Calculate Bollinger Band Width Through Elasticsearch" in LinkedIn
+Materials for the article "Calculate Bollinger Band Width Through Elasticsearch" in Medium
+(https://wtwong316.medium.com/calculate-bollinger-band-width-through-elasticsearch-39f7f3a1ceff)
 
 The following steps have been tested with Elasticsearch Server v7.10.1
 
